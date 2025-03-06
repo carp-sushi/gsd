@@ -9,38 +9,36 @@ module Repo
 import Models
 
 import Data.String.Conversions (cs)
-import Data.Text (Text)
 import Database.Persist.Sql
 
--- Use a static page size
-pageSize :: Int
-pageSize = 10
-
 -- Get a story by primary key.
-getStory :: ConnectionPool -> StoryId -> IO (Maybe Story)
+getStory :: ConnectionPool -> StoryId -> IO (Maybe StoryDto)
 getStory pool storyId =
   flip runSqlPersistMPool pool $ do
-    get storyId
+    maybeStory <- get storyId
+    return $ mkDto <$> maybeStory
+  where
+    mkDto (Story name) = StoryDto storyId name
 
 -- Insert a new story in the database.
-insertStory :: ConnectionPool -> Story -> IO (Maybe Story)
-insertStory pool story =
+insertStory :: ConnectionPool -> Story -> IO (Maybe StoryDto)
+insertStory pool story@(Story name) =
   flip runSqlPersistMPool pool $ do
-    _ <- insert story
-    return $ Just story
+    storyId <- insert story
+    return $ Just $ StoryDto storyId name
 
 -- List a page fo stories
-listStories :: ConnectionPool -> Int -> IO [Story]
-listStories pool page =
+listStories :: ConnectionPool -> Int -> Int -> IO [StoryDto]
+listStories pool page size =
   flip runSqlPersistMPool pool $ do
     stories <- queryPage
-    return $ entityVal <$> stories
+    return $ mkStoryDto <$> stories
   where
     queryPage = do
       selectList
         []
-        [ LimitTo pageSize
-        , OffsetBy $ (page - 1) * pageSize
+        [ LimitTo size
+        , OffsetBy $ (page - 1) * size
         ]
 
 -- Delete a story by primary key.
@@ -50,8 +48,10 @@ deleteStory pool storyId =
     delete storyId
 
 -- Update a story name in the database.
-updateStory :: ConnectionPool -> StoryId -> Text -> IO (Maybe Story)
-updateStory pool storyId name =
+updateStory :: ConnectionPool -> StoryId -> Story -> IO (Maybe StoryDto)
+updateStory pool storyId (Story name) =
   flip runSqlPersistMPool pool $ do
-    update storyId [StoryName =. (cs name)]
-    get storyId
+    update storyId [StoryName =. sname]
+    return $ Just $ StoryDto storyId sname
+  where
+    sname = cs name

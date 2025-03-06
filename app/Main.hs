@@ -11,9 +11,14 @@ import System.Environment (getArgs)
 main :: IO ()
 main = do
   args <- getArgs
-  if length args /= 1
-    then putStrLn "Usage: gsd-server <config-file>"
-    else startServer (args !! 0)
+  case firstArg args of
+    Nothing -> putStrLn "Usage: gsd-server <config-file>"
+    Just configFile -> startServer configFile
+
+-- Safely get the first CLI argument.
+firstArg :: [a] -> Maybe a
+firstArg [] = Nothing
+firstArg (x : _) = Just x
 
 -- Start the server with the given configuration file.
 startServer :: FilePath -> IO ()
@@ -21,6 +26,6 @@ startServer configFile = do
   config <- loadConfig configFile
   pool <- createPool (dbFile config) (poolSize config)
   runMigrations pool
-  let port = (webPort config)
-  putStrLn $ "Running gsd-server on port " <> (show port)
+  let port = webPort config
+  putStrLn $ "Running gsd-server on port " <> show port
   Warp.run port (serverApp pool)
