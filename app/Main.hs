@@ -1,6 +1,7 @@
 module Main (main) where
 
 import Config (Config (..), loadConfig)
+import Data.Maybe (listToMaybe)
 import Database (createPool, runMigrations)
 import Server (serverApp)
 
@@ -11,14 +12,9 @@ import System.Environment (getArgs)
 main :: IO ()
 main = do
   args <- getArgs
-  case firstArg args of
+  case listToMaybe args of
     Nothing -> putStrLn "Usage: gsd-server <config-file>"
     Just configFile -> startServer configFile
-
--- Safely get the first CLI argument.
-firstArg :: [a] -> Maybe a
-firstArg [] = Nothing
-firstArg (x : _) = Just x
 
 -- Start the server with the given configuration file.
 startServer :: FilePath -> IO ()
