@@ -1,0 +1,63 @@
+name: gsd
+version: 0.1.0.0
+github: "carp-sushi/gsd"
+license: BSD-3-Clause
+author: "carp-sushi"
+maintainer: "105142707+carp-sushi@users.noreply.github.com"
+copyright: "Copyright 2025-present, the original author(s)"
+description: Please see the README on GitHub at <https://github.com/carp-sushi/gsd#readme>
+
+extra-source-files:
+  - README.md
+
+default-extensions:
+  - OverloadedStrings
+
+dependencies:
+  - base >= 4.7 && < 5
+  - aeson
+  - configurator
+  - monad-logger
+  - persistent
+  - persistent-sqlite
+  - servant
+  - servant-server
+  - string-conversions
+  - text
+  - wai
+  - warp
+
+ghc-options:
+  - -Wall
+  - -Wcompat
+  - -Widentities
+  - -Wincomplete-record-updates
+  - -Wincomplete-uni-patterns
+  - -Wmissing-home-modules
+  - -Wpartial-fields
+  - -Wredundant-constraints
+
+library:
+  source-dirs: src
+
+executables:
+  gsd-server:
+    main: Main.hs
+    source-dirs: app
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - gsd
+
+tests:
+  gsd-test:
+    main: Spec.hs
+    source-dirs: test
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - gsd
