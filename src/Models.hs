@@ -11,12 +11,12 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 module Models where
 
 import Data.Aeson
-import Data.Text (Text)
 import Database.Persist.Sql
 import Database.Persist.TH
 import GHC.Generics
