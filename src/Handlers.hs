@@ -6,6 +6,7 @@ module Handlers
   , insertStoryHandler
   , listStoriesHandler
   , updateStoryHandler
+  , listTasksHandler
   ) where
 
 import Models
@@ -14,6 +15,7 @@ import Repo
   , getStory
   , insertStory
   , listStories
+  , listTasks
   , updateStory
   )
 
@@ -58,3 +60,10 @@ updateStoryHandler pool storyId story@(Story name) =
   if name == ""
     then throwError err400 {errBody = "Invalid story name"}
     else liftIO $ updateStory pool storyId story
+
+-- Get tasks for a story from the database.
+listTasksHandler :: ConnectionPool -> Maybe StoryId -> Handler [TaskDto]
+listTasksHandler _ Nothing = throwError err400 {errBody = "Missing story id"}
+listTasksHandler pool (Just storyId) =
+  liftIO $
+    listTasks pool storyId

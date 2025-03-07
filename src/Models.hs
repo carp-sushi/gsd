@@ -23,7 +23,7 @@ import GHC.Generics
 
 -- Custom field type for task status.
 data TaskStatus = Todo | Done
-  deriving (Eq, Generic, Read, Show)
+  deriving (Eq, Generic, Ord, Read, Show)
 
 derivePersistField "TaskStatus"
 instance ToJSON TaskStatus
@@ -62,3 +62,25 @@ instance ToJSON StoryDto where
 mkStoryDto :: Entity Story -> StoryDto
 mkStoryDto (Entity storyId (Story name)) =
   StoryDto storyId name
+
+-- Task data transfer object.
+data TaskDto = TaskDto
+  { taskId_ :: TaskId
+  , taskName_ :: String
+  , taskStatus_ :: TaskStatus
+  }
+  deriving (Eq, Ord, Show)
+
+-- Render data transfer object as JSON.
+instance ToJSON TaskDto where
+  toJSON (TaskDto taskId name status) =
+    object
+      [ "id" .= toJSON taskId
+      , "name" .= toJSON name
+      , "status" .= toJSON status
+      ]
+
+-- Create a task data transfer object from a database entity.
+mkTaskDto :: Entity Task -> TaskDto
+mkTaskDto (Entity taskId (Task _ name status)) =
+  TaskDto taskId name status

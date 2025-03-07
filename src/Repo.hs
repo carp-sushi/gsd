@@ -4,6 +4,7 @@ module Repo
   , listStories
   , deleteStory
   , updateStory
+  , listTasks
   ) where
 
 import Models
@@ -27,7 +28,7 @@ insertStory pool story@(Story name) =
     storyId <- insert story
     return $ Just $ StoryDto storyId name
 
--- List a page fo stories
+-- List a page of stories
 listStories :: ConnectionPool -> Int -> Int -> IO [StoryDto]
 listStories pool page size =
   flip runSqlPersistMPool pool $ do
@@ -55,3 +56,11 @@ updateStory pool storyId (Story name) =
     return $ Just $ StoryDto storyId sname
   where
     sname = cs name
+
+listTasks :: ConnectionPool -> StoryId -> IO [TaskDto]
+listTasks pool storyId =
+  flip runSqlPersistMPool pool $ do
+    tasks <- selectList [TaskStoryId ==. storyId] [LimitTo maxTasks]
+    return $ mkTaskDto <$> tasks
+  where
+    maxTasks = 100

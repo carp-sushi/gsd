@@ -7,7 +7,7 @@ module Api
   , api
   ) where
 
-import Models (Story, StoryDto, StoryId)
+import Models
 
 import Data.Proxy
 import Servant.API
@@ -19,6 +19,7 @@ type Api =
     :<|> "stories" :> Capture "storyId" StoryId :> Get '[JSON] (Maybe StoryDto)
     :<|> "stories" :> Capture "storyId" StoryId :> DeleteNoContent
     :<|> "stories" :> Capture "storyId" StoryId :> ReqBody '[JSON] Story :> Put '[JSON] (Maybe StoryDto)
+    :<|> "tasks" :> QueryParam "storyId" StoryId :> Get '[JSON] [TaskDto]
 
 -- API boilerplate
 api :: Proxy Api

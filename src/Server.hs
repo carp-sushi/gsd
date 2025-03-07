@@ -8,6 +8,7 @@ import Handlers
   , getStoryHandler
   , insertStoryHandler
   , listStoriesHandler
+  , listTasksHandler
   , updateStoryHandler
   )
 
@@ -23,3 +24,4 @@ serverApp pool =
       :<|> getStoryHandler pool
       :<|> deleteStoryHandler pool
       :<|> updateStoryHandler pool
+      :<|> listTasksHandler pool
