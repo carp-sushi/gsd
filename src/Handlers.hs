@@ -10,24 +10,27 @@ module Handlers
   , getTaskHandler
   ) where
 
+import Ctx
 import Models
 import Repo
 
 import Control.Monad.IO.Class (liftIO)
-import Database.Persist.Sql (ConnectionPool)
+import Control.Monad.Trans.Reader (ask)
 import Servant
 
 -- Get a story from the database.
-getStoryHandler :: ConnectionPool -> StoryId -> Handler StoryDto
-getStoryHandler pool storyId = do
+getStoryHandler :: StoryId -> HandlerM StoryDto
+getStoryHandler storyId = do
+  Ctx {pool_ = pool} <- ask
   maybeStory <- liftIO $ getStory pool storyId
   case maybeStory of
     Just story -> return story
     Nothing -> throwError err404 {errBody = "Story not found"}
 
 -- Get a page of stories from the database.
-listStoriesHandler :: ConnectionPool -> Maybe Int -> Maybe Int -> Handler [StoryDto]
-listStoriesHandler pool maybePage maybeSize =
+listStoriesHandler :: Maybe Int -> Maybe Int -> HandlerM [StoryDto]
+listStoriesHandler maybePage maybeSize = do
+  Ctx {pool_ = pool} <- ask
   liftIO $
     listStories pool (getPage maybePage) (getSize maybeSize)
   where
@@ -37,37 +40,42 @@ listStoriesHandler pool maybePage maybeSize =
     getSize (Just size) = max 1 (min size 100)
 
 -- Delete a story from the database.
-deleteStoryHandler :: ConnectionPool -> StoryId -> Handler NoContent
-deleteStoryHandler pool storyId =
-  liftIO $ do
-    deleteStory pool storyId
-    return NoContent
+deleteStoryHandler :: StoryId -> HandlerM NoContent
+deleteStoryHandler storyId = do
+  Ctx {pool_ = pool} <- ask
+  liftIO $ deleteStory pool storyId
+  return NoContent
 
 -- Validate then insert a story in the database.
-insertStoryHandler :: ConnectionPool -> Story -> Handler StoryDto
-insertStoryHandler pool story@(Story name) =
+insertStoryHandler :: Story -> HandlerM StoryDto
+insertStoryHandler story@(Story name) =
   if name == ""
     then throwError err400 {errBody = "Invalid story name"}
-    else liftIO $ insertStory pool story
+    else do
+      Ctx {pool_ = pool} <- ask
+      liftIO $ insertStory pool story
 
 -- Update a story name in the database.
-updateStoryHandler :: ConnectionPool -> StoryId -> Story -> Handler StoryDto
-updateStoryHandler pool storyId story@(Story name) =
+updateStoryHandler :: StoryId -> Story -> HandlerM StoryDto
+updateStoryHandler storyId story@(Story name) =
   if name == ""
     then throwError err400 {errBody = "Invalid story name"}
-    else liftIO $ updateStory pool storyId story
+    else do
+      Ctx {pool_ = pool} <- ask
+      liftIO $ updateStory pool storyId story
 
 -- Get tasks for a story from the database.
-listTasksHandler :: ConnectionPool -> Maybe StoryId -> Handler [TaskDto]
-listTasksHandler _ Nothing = throwError err400 {errBody = "Missing story id"}
-listTasksHandler pool (Just storyId) =
-  liftIO $
-    listTasks pool storyId
+listTasksHandler :: Maybe StoryId -> HandlerM [TaskDto]
+listTasksHandler Nothing = throwError err400 {errBody = "Missing storyId query parameter"}
+listTasksHandler (Just storyId) = do
+  Ctx {pool_ = pool} <- ask
+  liftIO $ listTasks pool storyId
 
 -- Get a task from the database.
-getTaskHandler :: ConnectionPool -> TaskId -> Handler TaskDto
-getTaskHandler pool taskId =
-  liftIO (getTask pool taskId) >>= result
-  where
-    result (Just task) = return task
-    result Nothing = throwError err404 {errBody = "Task not found"}
+getTaskHandler :: TaskId -> HandlerM TaskDto
+getTaskHandler taskId = do
+  Ctx {pool_ = pool} <- ask
+  maybeTask <- liftIO $ getTask pool taskId
+  case maybeTask of
+    Just task -> return task
+    Nothing -> throwError err404 {errBody = "Task not found"}

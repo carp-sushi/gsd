@@ -1,21 +1,32 @@
 module Server
-  ( serverApp
+  ( app
   ) where
 
-import Api (api)
+import Api
+import Ctx
 import Handlers
 
-import Database.Persist.Sql (ConnectionPool)
+import Control.Monad.Trans.Reader (runReaderT)
 import Servant
 
--- Create the API server
-serverApp :: ConnectionPool -> Application
-serverApp pool =
+-- Transform custom handler monads to servant handlers.
+transform :: Ctx -> HandlerM a -> Handler a
+transform ctx hm =
+  runReaderT hm ctx
+
+-- Create the application.
+app :: Ctx -> Application
+app ctx =
   serve api $
-    listStoriesHandler pool
-      :<|> insertStoryHandler pool
-      :<|> getStoryHandler pool
-      :<|> deleteStoryHandler pool
-      :<|> updateStoryHandler pool
-      :<|> listTasksHandler pool
-      :<|> getTaskHandler pool
+    hoistServer api (transform ctx) server
+
+-- Create the API server.
+server :: ServerT Api HandlerM
+server =
+  listStoriesHandler
+    :<|> insertStoryHandler
+    :<|> getStoryHandler
+    :<|> deleteStoryHandler
+    :<|> updateStoryHandler
+    :<|> listTasksHandler
+    :<|> getTaskHandler
