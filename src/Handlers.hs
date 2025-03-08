@@ -44,14 +44,14 @@ deleteStoryHandler pool storyId =
     return NoContent
 
 -- Validate then insert a story in the database.
-insertStoryHandler :: ConnectionPool -> Story -> Handler (Maybe StoryDto)
+insertStoryHandler :: ConnectionPool -> Story -> Handler StoryDto
 insertStoryHandler pool story@(Story name) =
   if name == ""
     then throwError err400 {errBody = "Invalid story name"}
     else liftIO $ insertStory pool story
 
 -- Update a story name in the database.
-updateStoryHandler :: ConnectionPool -> StoryId -> Story -> Handler (Maybe StoryDto)
+updateStoryHandler :: ConnectionPool -> StoryId -> Story -> Handler StoryDto
 updateStoryHandler pool storyId story@(Story name) =
   if name == ""
     then throwError err400 {errBody = "Invalid story name"}

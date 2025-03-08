@@ -23,11 +23,11 @@ getStory pool storyId =
     mkDto (Story name) = StoryDto storyId name
 
 -- Insert a new story in the database.
-insertStory :: ConnectionPool -> Story -> IO (Maybe StoryDto)
+insertStory :: ConnectionPool -> Story -> IO StoryDto
 insertStory pool story@(Story name) =
   flip runSqlPersistMPool pool $ do
     storyId <- insert story
-    return $ Just $ StoryDto storyId name
+    return $ StoryDto storyId name
 
 -- List a page of stories
 listStories :: ConnectionPool -> Int -> Int -> IO [StoryDto]
@@ -50,14 +50,15 @@ deleteStory pool storyId =
     delete storyId
 
 -- Update a story name in the database.
-updateStory :: ConnectionPool -> StoryId -> Story -> IO (Maybe StoryDto)
+updateStory :: ConnectionPool -> StoryId -> Story -> IO StoryDto
 updateStory pool storyId (Story name) =
   flip runSqlPersistMPool pool $ do
     update storyId [StoryName =. sname]
-    return $ Just $ StoryDto storyId sname
+    return $ StoryDto storyId sname
   where
     sname = cs name
 
+-- Get tasks for a story
 listTasks :: ConnectionPool -> StoryId -> IO [TaskDto]
 listTasks pool storyId =
   flip runSqlPersistMPool pool $ do
