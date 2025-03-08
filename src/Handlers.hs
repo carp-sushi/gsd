@@ -18,10 +18,12 @@ import Database.Persist.Sql (ConnectionPool)
 import Servant
 
 -- Get a story from the database.
-getStoryHandler :: ConnectionPool -> StoryId -> Handler (Maybe StoryDto)
-getStoryHandler pool storyId =
-  liftIO $
-    getStory pool storyId
+getStoryHandler :: ConnectionPool -> StoryId -> Handler StoryDto
+getStoryHandler pool storyId = do
+  maybeStory <- liftIO $ getStory pool storyId
+  case maybeStory of
+    Just story -> return story
+    Nothing -> throwError err404 {errBody = "Story not found"}
 
 -- Get a page of stories from the database.
 listStoriesHandler :: ConnectionPool -> Maybe Int -> Maybe Int -> Handler [StoryDto]
@@ -63,7 +65,9 @@ listTasksHandler pool (Just storyId) =
     listTasks pool storyId
 
 -- Get a task from the database.
-getTaskHandler :: ConnectionPool -> TaskId -> Handler (Maybe TaskDto)
+getTaskHandler :: ConnectionPool -> TaskId -> Handler TaskDto
 getTaskHandler pool taskId =
-  liftIO $
-    getTask pool taskId
+  liftIO (getTask pool taskId) >>= result
+  where
+    result (Just task) = return task
+    result Nothing = throwError err404 {errBody = "Task not found"}
