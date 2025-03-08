@@ -4,13 +4,6 @@ module Server
 
 import Api (api)
 import Handlers
-  ( deleteStoryHandler
-  , getStoryHandler
-  , insertStoryHandler
-  , listStoriesHandler
-  , listTasksHandler
-  , updateStoryHandler
-  )
 
 import Database.Persist.Sql (ConnectionPool)
 import Servant
@@ -25,3 +18,4 @@ serverApp pool =
       :<|> deleteStoryHandler pool
       :<|> updateStoryHandler pool
       :<|> listTasksHandler pool
+      :<|> getTaskHandler pool

@@ -7,17 +7,11 @@ module Handlers
   , listStoriesHandler
   , updateStoryHandler
   , listTasksHandler
+  , getTaskHandler
   ) where
 
 import Models
 import Repo
-  ( deleteStory
-  , getStory
-  , insertStory
-  , listStories
-  , listTasks
-  , updateStory
-  )
 
 import Control.Monad.IO.Class (liftIO)
 import Database.Persist.Sql (ConnectionPool)
@@ -67,3 +61,9 @@ listTasksHandler _ Nothing = throwError err400 {errBody = "Missing story id"}
 listTasksHandler pool (Just storyId) =
   liftIO $
     listTasks pool storyId
+
+-- Get a task from the database.
+getTaskHandler :: ConnectionPool -> TaskId -> Handler (Maybe TaskDto)
+getTaskHandler pool taskId =
+  liftIO $
+    getTask pool taskId

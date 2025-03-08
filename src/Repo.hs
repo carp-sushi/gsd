@@ -5,6 +5,7 @@ module Repo
   , deleteStory
   , updateStory
   , listTasks
+  , getTask
   ) where
 
 import Models
@@ -64,3 +65,12 @@ listTasks pool storyId =
     return $ mkTaskDto <$> tasks
   where
     maxTasks = 100
+
+-- Get a task by primary key.
+getTask :: ConnectionPool -> TaskId -> IO (Maybe TaskDto)
+getTask pool taskId =
+  flip runSqlPersistMPool pool $ do
+    maybeTask <- get taskId
+    return $ mkDto <$> maybeTask
+  where
+    mkDto (Task _ name status) = TaskDto taskId name status
