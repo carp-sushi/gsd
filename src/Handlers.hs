@@ -9,6 +9,7 @@ module Handlers
   , listTasksHandler
   , getTaskHandler
   , insertTaskHandler
+  , deleteTaskHandler
   ) where
 
 import Ctx
@@ -89,3 +90,10 @@ insertTaskHandler task = do
   case maybeStory of
     Nothing -> throwError err400 {errBody = "Invalid storyId"}
     Just _ -> liftIO $ insertTask pool task
+
+-- Delete a task from the database.
+deleteTaskHandler :: TaskId -> HandlerM NoContent
+deleteTaskHandler taskId = do
+  Ctx {pool_ = pool} <- ask
+  liftIO $ deleteTask pool taskId
+  return NoContent

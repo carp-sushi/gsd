@@ -7,6 +7,7 @@ module Repo
   , listTasks
   , getTask
   , insertTask
+  , deleteTask
   ) where
 
 import Models
@@ -76,3 +77,9 @@ insertTask pool task =
   flip runSqlPersistMPool pool $ do
     taskId <- insert task
     return $ TaskDto taskId (taskName task) (taskStatus task)
+
+-- Delete a task by primary key.
+deleteTask :: ConnectionPool -> TaskId -> IO ()
+deleteTask pool taskId =
+  flip runSqlPersistMPool pool $ do
+    delete taskId

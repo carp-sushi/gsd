@@ -2,4 +2,4 @@
 
 ## Get Stuff Done
 
-Learning me some Servant and Persistent for great good!
+__Goal__ – Use Servant and Persistent to create a basic http/json web-service.

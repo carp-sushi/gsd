@@ -28,6 +28,7 @@ type TaskApi =
   "tasks" :> QueryParam "storyId" StoryId :> Get '[JSON] [TaskDto]
     :<|> "tasks" :> Capture "taskId" TaskId :> Get '[JSON] TaskDto
     :<|> "tasks" :> ReqBody '[JSON] Task :> PostCreated '[JSON] TaskDto
+    :<|> "tasks" :> Capture "taskId" TaskId :> DeleteNoContent
 
 -- API boilerplate
 api :: Proxy Api
