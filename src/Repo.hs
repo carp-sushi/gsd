@@ -8,6 +8,7 @@ module Repo
   , getTask
   , insertTask
   , deleteTask
+  , updateTask
   ) where
 
 import Models
@@ -83,3 +84,12 @@ deleteTask :: ConnectionPool -> TaskId -> IO ()
 deleteTask pool taskId =
   flip runSqlPersistMPool pool $ do
     delete taskId
+
+-- Update a task name in the database.
+updateTask :: ConnectionPool -> TaskId -> Task -> IO TaskDto
+updateTask pool taskId (Task _ name status) =
+  flip runSqlPersistMPool pool $ do
+    update taskId [TaskName =. sname, TaskStatus =. status]
+    return $ TaskDto taskId sname status
+  where
+    sname = cs name

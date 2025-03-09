@@ -29,6 +29,7 @@ type TaskApi =
     :<|> "tasks" :> Capture "taskId" TaskId :> Get '[JSON] TaskDto
     :<|> "tasks" :> ReqBody '[JSON] Task :> PostCreated '[JSON] TaskDto
     :<|> "tasks" :> Capture "taskId" TaskId :> DeleteNoContent
+    :<|> "tasks" :> Capture "taskId" TaskId :> ReqBody '[JSON] Task :> Put '[JSON] TaskDto
 
 -- API boilerplate
 api :: Proxy Api

@@ -36,3 +36,4 @@ server =
         :<|> getTaskHandler
         :<|> insertTaskHandler
         :<|> deleteTaskHandler
+        :<|> updateTaskHandler

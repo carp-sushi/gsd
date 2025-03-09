@@ -10,6 +10,7 @@ module Handlers
   , getTaskHandler
   , insertTaskHandler
   , deleteTaskHandler
+  , updateTaskHandler
   ) where
 
 import Ctx
@@ -97,3 +98,9 @@ deleteTaskHandler taskId = do
   Ctx {pool_ = pool} <- ask
   liftIO $ deleteTask pool taskId
   return NoContent
+
+-- Update a task name and status in the database.
+updateTaskHandler :: TaskId -> Task -> HandlerM TaskDto
+updateTaskHandler taskId task = do
+  Ctx {pool_ = pool} <- ask
+  liftIO $ updateTask pool taskId task
