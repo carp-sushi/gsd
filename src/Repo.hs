@@ -6,6 +6,7 @@ module Repo
   , updateStory
   , listTasks
   , getTask
+  , insertTask
   ) where
 
 import Models
@@ -33,15 +34,8 @@ insertStory pool story@(Story name) =
 listStories :: ConnectionPool -> Int -> Int -> IO [StoryDto]
 listStories pool page size =
   flip runSqlPersistMPool pool $ do
-    stories <- queryPage
+    stories <- selectList [] [LimitTo size, OffsetBy $ (page - 1) * size]
     return $ mkStoryDto <$> stories
-  where
-    queryPage = do
-      selectList
-        []
-        [ LimitTo size
-        , OffsetBy $ (page - 1) * size
-        ]
 
 -- Delete a story by primary key.
 deleteStory :: ConnectionPool -> StoryId -> IO ()
@@ -75,3 +69,10 @@ getTask pool taskId =
     return $ mkDto <$> maybeTask
   where
     mkDto (Task _ name status) = TaskDto taskId name status
+
+-- Insert a new task in the database.
+insertTask :: ConnectionPool -> Task -> IO TaskDto
+insertTask pool task =
+  flip runSqlPersistMPool pool $ do
+    taskId <- insert task
+    return $ TaskDto taskId (taskName task) (taskStatus task)

@@ -2,10 +2,10 @@ module Main (main) where
 
 import Config (Config (..), loadConfig)
 import Ctx (Ctx (..))
-import Data.Maybe (listToMaybe)
 import Database (createPool, runMigrations)
 import Server (app)
 
+import Data.Maybe (listToMaybe)
 import qualified Network.Wai.Handler.Warp as Warp
 import System.Environment (getArgs)
 

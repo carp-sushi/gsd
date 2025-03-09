@@ -23,10 +23,15 @@ app ctx =
 -- Create the API server.
 server :: ServerT Api HandlerM
 server =
-  listStoriesHandler
-    :<|> insertStoryHandler
-    :<|> getStoryHandler
-    :<|> deleteStoryHandler
-    :<|> updateStoryHandler
-    :<|> listTasksHandler
-    :<|> getTaskHandler
+  storyHandlers :<|> taskHandlers
+  where
+    storyHandlers =
+      listStoriesHandler
+        :<|> insertStoryHandler
+        :<|> getStoryHandler
+        :<|> deleteStoryHandler
+        :<|> updateStoryHandler
+    taskHandlers =
+      listTasksHandler
+        :<|> getTaskHandler
+        :<|> insertTaskHandler

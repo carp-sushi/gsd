@@ -8,6 +8,7 @@ module Handlers
   , updateStoryHandler
   , listTasksHandler
   , getTaskHandler
+  , insertTaskHandler
   ) where
 
 import Ctx
@@ -79,3 +80,12 @@ getTaskHandler taskId = do
   case maybeTask of
     Just task -> return task
     Nothing -> throwError err404 {errBody = "Task not found"}
+
+-- Insert a task in the database.
+insertTaskHandler :: Task -> HandlerM TaskDto
+insertTaskHandler task = do
+  Ctx {pool_ = pool} <- ask
+  maybeStory <- liftIO $ getStory pool (taskStoryId task)
+  case maybeStory of
+    Nothing -> throwError err400 {errBody = "Invalid storyId"}
+    Just _ -> liftIO $ insertTask pool task
