@@ -85,7 +85,7 @@ getTaskHandler taskId = do
 -- Insert a task in the database.
 insertTaskHandler :: Task -> HandlerM TaskDto
 insertTaskHandler task =
-  if (taskName task) == ""
+  if taskName task == ""
     then throwError err400 {errBody = "Invalid task name"}
     else insertTask' task
 
@@ -108,7 +108,7 @@ deleteTaskHandler taskId = do
 -- Update a task name and status in the database.
 updateTaskHandler :: TaskId -> Task -> HandlerM TaskDto
 updateTaskHandler taskId task = do
-  if (taskName task) == ""
+  if taskName task == ""
     then throwError err400 {errBody = "Invalid task name"}
     else updateTask' taskId task
 
