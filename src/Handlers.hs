@@ -34,8 +34,7 @@ getStoryHandler storyId = do
 listStoriesHandler :: Maybe Int -> Maybe Int -> HandlerM [StoryDto]
 listStoriesHandler maybePage maybeSize = do
   Ctx {pool_ = pool} <- ask
-  liftIO $
-    listStories pool (getPage maybePage) (getSize maybeSize)
+  liftIO $ listStories pool (getPage maybePage) (getSize maybeSize)
   where
     getPage Nothing = 1
     getPage (Just page) = max page 1
@@ -85,7 +84,14 @@ getTaskHandler taskId = do
 
 -- Insert a task in the database.
 insertTaskHandler :: Task -> HandlerM TaskDto
-insertTaskHandler task = do
+insertTaskHandler task =
+  if (taskName task) == ""
+    then throwError err400 {errBody = "Invalid task name"}
+    else insertTask' task
+
+-- Insert task helper
+insertTask' :: Task -> HandlerM TaskDto
+insertTask' task = do
   Ctx {pool_ = pool} <- ask
   maybeStory <- liftIO $ getStory pool (taskStoryId task)
   case maybeStory of
@@ -102,5 +108,12 @@ deleteTaskHandler taskId = do
 -- Update a task name and status in the database.
 updateTaskHandler :: TaskId -> Task -> HandlerM TaskDto
 updateTaskHandler taskId task = do
+  if (taskName task) == ""
+    then throwError err400 {errBody = "Invalid task name"}
+    else updateTask' taskId task
+
+-- Update task helper
+updateTask' :: TaskId -> Task -> HandlerM TaskDto
+updateTask' taskId task = do
   Ctx {pool_ = pool} <- ask
   liftIO $ updateTask pool taskId task
