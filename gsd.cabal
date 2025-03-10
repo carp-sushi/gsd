@@ -28,6 +28,7 @@ library
       Config
       Ctx
       Database
+      Errors
       Handlers
       Models
       Repo

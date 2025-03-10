@@ -12,5 +12,5 @@ newtype Ctx = Ctx
   { pool_ :: ConnectionPool
   }
 
--- Custom readwe monad for handlers.
+-- Custom reader monad for handlers.
 type HandlerM = ReaderT Ctx Handler

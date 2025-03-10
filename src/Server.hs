@@ -4,6 +4,7 @@ module Server
 
 import Api
 import Ctx
+import Errors (customFormatters)
 import Handlers
 
 import Control.Monad.Trans.Reader (runReaderT)
@@ -17,12 +18,14 @@ transform ctx hm =
 -- Create the application.
 app :: Ctx -> Application
 app ctx =
-  serve api $
-    hoistServer api (transform ctx) server
+  serveWithContext api fmt server
+  where
+    fmt = customFormatters :. EmptyContext
+    server = hoistServer api (transform ctx) mkServer
 
 -- Create the API server.
-server :: ServerT Api HandlerM
-server =
+mkServer :: ServerT Api HandlerM
+mkServer =
   storyHandlers :<|> taskHandlers
   where
     storyHandlers =
