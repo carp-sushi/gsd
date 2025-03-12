@@ -17,27 +17,27 @@ import Data.String.Conversions (cs)
 import Database.Persist.Sql
 
 -- Get a story by primary key.
-getStory :: ConnectionPool -> StoryId -> IO (Maybe StoryDto)
+getStory :: ConnectionPool -> StoryId -> IO (Maybe StoryRep)
 getStory pool storyId =
   flip runSqlPersistMPool pool $ do
     maybeStory <- get storyId
-    return $ mkDto <$> maybeStory
+    return $ mkReply <$> maybeStory
   where
-    mkDto (Story name) = StoryDto storyId name
+    mkReply (Story _ name) = StoryRep storyId name
 
 -- Insert a new story in the database.
-insertStory :: ConnectionPool -> Story -> IO StoryDto
-insertStory pool story@(Story name) =
+insertStory :: ConnectionPool -> Story -> IO StoryRep
+insertStory pool story =
   flip runSqlPersistMPool pool $ do
     storyId <- insert story
-    return $ StoryDto storyId name
+    return $ StoryRep storyId $ storyName story
 
 -- List a page of stories
-listStories :: ConnectionPool -> Int -> Int -> IO [StoryDto]
-listStories pool page size =
+listStories :: ConnectionPool -> String -> Int -> Int -> IO [StoryRep]
+listStories pool address page size =
   flip runSqlPersistMPool pool $ do
-    stories <- selectList [] [LimitTo size, OffsetBy $ (page - 1) * size]
-    return $ mkStoryDto <$> stories
+    stories <- selectList [StoryAddress ==. address] [LimitTo size, OffsetBy $ (page - 1) * size]
+    return $ mkStoryRep <$> stories
 
 -- Delete a story by primary key.
 deleteStory :: ConnectionPool -> StoryId -> IO ()
@@ -46,13 +46,13 @@ deleteStory pool storyId =
     delete storyId
 
 -- Update a story name in the database.
-updateStory :: ConnectionPool -> StoryId -> Story -> IO StoryDto
-updateStory pool storyId (Story name) =
+updateStory :: ConnectionPool -> StoryId -> Story -> IO StoryRep
+updateStory pool storyId story =
   flip runSqlPersistMPool pool $ do
     update storyId [StoryName =. sname]
-    return $ StoryDto storyId sname
+    return $ StoryRep storyId sname
   where
-    sname = cs name
+    sname = cs $ storyName story
 
 -- Get tasks for a story
 listTasks :: ConnectionPool -> StoryId -> IO [TaskDto]

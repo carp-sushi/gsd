@@ -17,6 +17,7 @@
 module Models where
 
 import Data.Aeson
+import Data.Text (Text)
 import Database.Persist.Sql
 import Database.Persist.TH
 import GHC.Generics
@@ -33,6 +34,7 @@ share
   [mkPersist sqlSettings, mkMigrate "migrateAll"]
   [persistLowerCase|
 Story json sql=stories
+  address String
   name String
   deriving Eq Read Show
 Task json sql=tasks
@@ -42,26 +44,36 @@ Task json sql=tasks
   deriving Eq Read Show
 |]
 
--- Story data transfer object.
--- We use this so we can pair the primary key with the story name.
-data StoryDto = StoryDto
+-- Story request type.
+newtype StoryReq = StoryReq
+  { storyReqName :: Text
+  }
+  deriving (Eq, Ord, Show)
+
+instance FromJSON StoryReq where
+  parseJSON = withObject "StoryReq" $ \o -> do
+    name <- o .: "name"
+    return $ StoryReq name
+
+-- Story reply type.
+data StoryRep = StoryRep
   { storyId_ :: StoryId
   , storyName_ :: String
   }
   deriving (Eq, Ord, Show)
 
 -- Render data transfer object as JSON.
-instance ToJSON StoryDto where
-  toJSON (StoryDto storyId name) =
+instance ToJSON StoryRep where
+  toJSON (StoryRep storyId name) =
     object
       [ "id" .= toJSON storyId
       , "name" .= toJSON name
       ]
 
 -- Create a story data transfer object from a database entity.
-mkStoryDto :: Entity Story -> StoryDto
-mkStoryDto (Entity storyId (Story name)) =
-  StoryDto storyId name
+mkStoryRep :: Entity Story -> StoryRep
+mkStoryRep (Entity storyId (Story _ name)) =
+  StoryRep storyId name
 
 -- Task data transfer object.
 data TaskDto = TaskDto

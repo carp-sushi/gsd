@@ -15,13 +15,13 @@ import Servant.API
 -- API type
 type Api = StoryApi :<|> TaskApi
 
--- Story API type
+-- Story API
 type StoryApi =
-  "stories" :> QueryParam "page" Int :> QueryParam "size" Int :> Get '[JSON] [StoryDto]
-    :<|> "stories" :> ReqBody '[JSON] Story :> PostCreated '[JSON] StoryDto
-    :<|> "stories" :> Capture "storyId" StoryId :> Get '[JSON] StoryDto
-    :<|> "stories" :> Capture "storyId" StoryId :> DeleteNoContent
-    :<|> "stories" :> Capture "storyId" StoryId :> ReqBody '[JSON] Story :> Put '[JSON] StoryDto
+  "stories" :> AuthProtect "account-auth" :> QueryParam "page" Int :> QueryParam "size" Int :> Get '[JSON] [StoryRep]
+    :<|> "stories" :> AuthProtect "account-auth" :> ReqBody '[JSON] StoryReq :> PostCreated '[JSON] StoryRep
+    :<|> "stories" :> AuthProtect "account-auth" :> Capture "storyId" StoryId :> Get '[JSON] StoryRep
+    :<|> "stories" :> AuthProtect "account-auth" :> Capture "storyId" StoryId :> DeleteNoContent
+    :<|> "stories" :> AuthProtect "account-auth" :> Capture "storyId" StoryId :> ReqBody '[JSON] StoryReq :> Put '[JSON] StoryRep
 
 -- Task API type
 type TaskApi =

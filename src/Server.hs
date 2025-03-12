@@ -3,40 +3,29 @@ module Server
   ) where
 
 import Api
+import Auth
 import Ctx
 import Errors (customFormatters)
 import Handlers
 
-import Control.Monad.Trans.Reader (runReaderT)
 import Servant
-
--- Transform custom handler monads to servant handlers.
-transform :: Ctx -> HandlerM a -> Handler a
-transform ctx hm =
-  runReaderT hm ctx
 
 -- Create the application.
 app :: Ctx -> Application
-app ctx =
+app Ctx {pool_ = pool} =
   serveWithContext api serverCtx server
   where
-    serverCtx = customFormatters :. EmptyContext
-    server = hoistServer api (transform ctx) mkServer
-
--- Create the API server.
-mkServer :: ServerT Api HandlerM
-mkServer =
-  storyHandlers :<|> taskHandlers
-  where
-    storyHandlers =
-      listStoriesHandler
-        :<|> insertStoryHandler
-        :<|> getStoryHandler
-        :<|> deleteStoryHandler
-        :<|> updateStoryHandler
-    taskHandlers =
-      listTasksHandler
-        :<|> getTaskHandler
-        :<|> insertTaskHandler
-        :<|> deleteTaskHandler
-        :<|> updateTaskHandler
+    serverCtx = authHandler :. customFormatters :. EmptyContext
+    server = stories :<|> tasks
+    stories =
+      listStoriesHandler pool
+        :<|> insertStoryHandler pool
+        :<|> getStoryHandler pool
+        :<|> deleteStoryHandler pool
+        :<|> updateStoryHandler pool
+    tasks =
+      listTasksHandler pool
+        :<|> getTaskHandler pool
+        :<|> insertTaskHandler pool
+        :<|> deleteTaskHandler pool
+        :<|> updateTaskHandler pool

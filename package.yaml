@@ -16,6 +16,7 @@ default-extensions:
 dependencies:
   - base >= 4.7 && < 5
   - aeson
+  - bytestring
   - configurator
   - monad-logger
   - persistent
