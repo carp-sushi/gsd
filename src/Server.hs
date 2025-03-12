@@ -18,9 +18,9 @@ transform ctx hm =
 -- Create the application.
 app :: Ctx -> Application
 app ctx =
-  serveWithContext api fmt server
+  serveWithContext api serverCtx server
   where
-    fmt = customFormatters :. EmptyContext
+    serverCtx = customFormatters :. EmptyContext
     server = hoistServer api (transform ctx) mkServer
 
 -- Create the API server.

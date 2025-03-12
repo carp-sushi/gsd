@@ -25,4 +25,4 @@ startServer configFile = do
   runMigrations pool
   let port = webPort config
   putStrLn $ "Running gsd-server on port " <> show port
-  Warp.run port $ app (Ctx pool)
+  Warp.run port $ app $ Ctx pool

@@ -16,7 +16,7 @@ customFormatters =
     { bodyParserErrorFormatter = bodyParserJsonFormatter
     }
 
--- Custom JSON error formatter for body parser errors.
+-- Custom JSON formatter for body parser errors.
 bodyParserJsonFormatter :: ErrorFormatter
 bodyParserJsonFormatter _ _ err =
   err400
