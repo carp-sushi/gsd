@@ -58,22 +58,24 @@ instance FromJSON StoryReq where
 -- Story reply type.
 data StoryRep = StoryRep
   { storyId_ :: StoryId
+  , storyAddress_ :: String
   , storyName_ :: String
   }
   deriving (Eq, Ord, Show)
 
 -- Render data transfer object as JSON.
 instance ToJSON StoryRep where
-  toJSON (StoryRep storyId name) =
+  toJSON (StoryRep storyId address name) =
     object
       [ "id" .= toJSON storyId
+      , "address" .= toJSON address
       , "name" .= toJSON name
       ]
 
 -- Create a story data transfer object from a database entity.
 mkStoryRep :: Entity Story -> StoryRep
-mkStoryRep (Entity storyId (Story _ name)) =
-  StoryRep storyId name
+mkStoryRep (Entity storyId (Story address name)) =
+  StoryRep storyId address name
 
 -- Task data transfer object.
 data TaskDto = TaskDto

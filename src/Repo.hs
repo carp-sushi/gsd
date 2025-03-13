@@ -23,14 +23,14 @@ getStory pool storyId =
     maybeStory <- get storyId
     return $ mkReply <$> maybeStory
   where
-    mkReply (Story _ name) = StoryRep storyId name
+    mkReply (Story address name) = StoryRep storyId address name
 
 -- Insert a new story in the database.
 insertStory :: ConnectionPool -> Story -> IO StoryRep
 insertStory pool story =
   flip runSqlPersistMPool pool $ do
     storyId <- insert story
-    return $ StoryRep storyId $ storyName story
+    return $ StoryRep storyId (storyAddress story) (storyName story)
 
 -- List a page of stories
 listStories :: ConnectionPool -> String -> Int -> Int -> IO [StoryRep]
@@ -50,8 +50,9 @@ updateStory :: ConnectionPool -> StoryId -> Story -> IO StoryRep
 updateStory pool storyId story =
   flip runSqlPersistMPool pool $ do
     update storyId [StoryName =. sname]
-    return $ StoryRep storyId sname
+    return $ StoryRep storyId address sname
   where
+    address = storyAddress story
     sname = cs $ storyName story
 
 -- Get tasks for a story

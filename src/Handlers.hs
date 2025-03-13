@@ -25,11 +25,21 @@ import Servant
 
 -- Get a story from the database.
 getStoryHandler :: ConnectionPool -> Account -> StoryId -> Handler StoryRep
-getStoryHandler pool _ storyId = do
+getStoryHandler pool account storyId = do
   maybeStory <- liftIO $ getStory pool storyId
-  case maybeStory of
+  case (verify account maybeStory) of
     Just story -> return story
     Nothing -> throwError $ notFound "Story not found"
+
+-- Verify story ownership.
+verify :: Account -> Maybe StoryRep -> Maybe StoryRep
+verify _ Nothing = Nothing
+verify account (Just storyRep) =
+  if address == accountAddress account
+    then Just storyRep
+    else Nothing
+  where
+    address = cs $ storyAddress_ storyRep
 
 -- Get a page of stories from the database.
 listStoriesHandler :: ConnectionPool -> Account -> Maybe Int -> Maybe Int -> Handler [StoryRep]
@@ -44,9 +54,14 @@ listStoriesHandler pool account maybePage maybeSize = do
 
 -- Delete a story from the database.
 deleteStoryHandler :: ConnectionPool -> Account -> StoryId -> Handler NoContent
-deleteStoryHandler pool _ storyId = do
-  liftIO $ deleteStory pool storyId
-  return NoContent
+deleteStoryHandler pool account storyId = do
+  maybeStory <- liftIO $ getStory pool storyId
+  case (verify account maybeStory) of
+    Just _ -> do
+      liftIO $ deleteStory pool storyId
+      return NoContent
+    Nothing ->
+      throwError $ notFound "Story not found"
 
 -- Validate then insert a story in the database.
 insertStoryHandler :: ConnectionPool -> Account -> StoryReq -> Handler StoryRep
@@ -61,19 +76,17 @@ insertStoryHandler pool account req =
 
 -- Update a story name in the database.
 updateStoryHandler :: ConnectionPool -> Account -> StoryId -> StoryReq -> Handler StoryRep
-updateStoryHandler pool account storyId req =
+updateStoryHandler pool account storyId storyReq =
   if name == ""
     then throwError $ badRequest "Invalid story name"
-    else updateStory' pool storyId story
+    else do
+      maybeStory <- liftIO $ getStory pool storyId
+      case (verify account maybeStory) of
+        Just _ -> liftIO $ updateStory pool storyId story
+        Nothing -> throwError $ notFound "Story not found"
   where
-    name = storyReqName req
-    address = accountAddress account
-    story = Story (cs address) (cs name)
-
--- Update story helper.
-updateStory' :: ConnectionPool -> StoryId -> Story -> Handler StoryRep
-updateStory' pool storyId story = do
-  liftIO $ updateStory pool storyId story
+    name = storyReqName storyReq
+    story = Story (cs $ accountAddress account) (cs name)
 
 -- Get tasks for a story from the database.
 listTasksHandler :: ConnectionPool -> Maybe StoryId -> Handler [TaskDto]
