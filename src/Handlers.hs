@@ -27,7 +27,7 @@ import Servant
 getStoryHandler :: ConnectionPool -> Account -> StoryId -> Handler StoryRep
 getStoryHandler pool account storyId = do
   maybeStory <- liftIO $ getStory pool storyId
-  case (verify account maybeStory) of
+  case verify account maybeStory of
     Just story -> return story
     Nothing -> throwError $ notFound "Story not found"
 
@@ -56,7 +56,7 @@ listStoriesHandler pool account maybePage maybeSize = do
 deleteStoryHandler :: ConnectionPool -> Account -> StoryId -> Handler NoContent
 deleteStoryHandler pool account storyId = do
   maybeStory <- liftIO $ getStory pool storyId
-  case (verify account maybeStory) of
+  case verify account maybeStory of
     Just _ -> do
       liftIO $ deleteStory pool storyId
       return NoContent
@@ -81,7 +81,7 @@ updateStoryHandler pool account storyId storyReq =
     then throwError $ badRequest "Invalid story name"
     else do
       maybeStory <- liftIO $ getStory pool storyId
-      case (verify account maybeStory) of
+      case verify account maybeStory of
         Just _ -> liftIO $ updateStory pool storyId story
         Nothing -> throwError $ notFound "Story not found"
   where
