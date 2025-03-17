@@ -103,12 +103,17 @@ test-suite gsd-test
     , base >=4.7 && <5
     , configurator
     , gsd
+    , hspec
+    , hspec-wai
+    , http-types
     , monad-logger
     , persistent
     , persistent-sqlite
     , servant
     , servant-server
     , string-conversions
+    , tasty
+    , tasty-hspec
     , text
     , transformers
     , wai

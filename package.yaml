@@ -57,3 +57,8 @@ tests:
       - -with-rtsopts=-N
     dependencies:
       - gsd
+      - hspec
+      - hspec-wai
+      - http-types
+      - tasty
+      - tasty-hspec

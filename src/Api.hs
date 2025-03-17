@@ -17,19 +17,19 @@ type Api = StoryApi :<|> TaskApi
 
 -- Story API type
 type StoryApi =
-  "stories" :> QueryParam "page" Int :> QueryParam "size" Int :> Get '[JSON] [StoryDto]
-    :<|> "stories" :> ReqBody '[JSON] Story :> PostCreated '[JSON] StoryDto
-    :<|> "stories" :> Capture "storyId" StoryId :> Get '[JSON] StoryDto
+  "stories" :> QueryParam "page" Int :> QueryParam "size" Int :> Get '[JSON] [StoryRep]
+    :<|> "stories" :> ReqBody '[JSON] StoryReq :> PostCreated '[JSON] StoryRep
+    :<|> "stories" :> Capture "storyId" StoryId :> Get '[JSON] StoryRep
     :<|> "stories" :> Capture "storyId" StoryId :> DeleteNoContent
-    :<|> "stories" :> Capture "storyId" StoryId :> ReqBody '[JSON] Story :> Put '[JSON] StoryDto
+    :<|> "stories" :> Capture "storyId" StoryId :> ReqBody '[JSON] StoryReq :> Put '[JSON] StoryRep
 
 -- Task API type
 type TaskApi =
-  "tasks" :> QueryParam "storyId" StoryId :> Get '[JSON] [TaskDto]
-    :<|> "tasks" :> Capture "taskId" TaskId :> Get '[JSON] TaskDto
-    :<|> "tasks" :> ReqBody '[JSON] Task :> PostCreated '[JSON] TaskDto
+  "tasks" :> QueryParam "storyId" StoryId :> Get '[JSON] [TaskRep]
+    :<|> "tasks" :> Capture "taskId" TaskId :> Get '[JSON] TaskRep
+    :<|> "tasks" :> ReqBody '[JSON] TaskReq :> PostCreated '[JSON] TaskRep
     :<|> "tasks" :> Capture "taskId" TaskId :> DeleteNoContent
-    :<|> "tasks" :> Capture "taskId" TaskId :> ReqBody '[JSON] Task :> Put '[JSON] TaskDto
+    :<|> "tasks" :> Capture "taskId" TaskId :> ReqBody '[JSON] TaskReq :> Put '[JSON] TaskRep
 
 -- API boilerplate
 api :: Proxy Api

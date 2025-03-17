@@ -5,18 +5,20 @@ module Database
 
 import Models (migrateAll)
 
-import Control.Monad.Logger (runStderrLoggingT)
+import Control.Monad.Logger (runNoLoggingT)
 import Data.String.Conversions (cs)
 import Data.Text (Text)
-import Database.Persist.Sqlite (ConnectionPool, createSqlitePool, runMigration, runSqlPool)
+import Database.Persist.Sqlite (ConnectionPool, createSqlitePool, runMigrationSilent, runSqlPool)
 
 -- Create a database connection pool.
 createPool :: Text -> Int -> IO ConnectionPool
 createPool dbFile poolSize =
-  runStderrLoggingT $ do
+  runNoLoggingT $ do
     createSqlitePool (cs dbFile) poolSize
 
 -- Run SQL migrations on a sqlite database.
 runMigrations :: ConnectionPool -> IO ()
-runMigrations =
-  runSqlPool (runMigration migrateAll)
+runMigrations pool =
+  runNoLoggingT $ do
+    _ <- runSqlPool (runMigrationSilent migrateAll) pool
+    return ()

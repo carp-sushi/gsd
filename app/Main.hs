@@ -2,7 +2,7 @@ module Main (main) where
 
 import Config (Config (..), loadConfig)
 import Ctx (Ctx (..))
-import Database (createPool, runMigrations)
+import qualified Database as DB
 import Server (app)
 
 import Data.Maybe (listToMaybe)
@@ -21,8 +21,8 @@ main = do
 startServer :: FilePath -> IO ()
 startServer configFile = do
   config <- loadConfig configFile
-  pool <- createPool (dbFile config) (poolSize config)
-  runMigrations pool
+  pool <- DB.createPool (dbFile config) (poolSize config)
+  DB.runMigrations pool
   let port = webPort config
   putStrLn $ "Running gsd-server on port " <> show port
   Warp.run port $ app $ Ctx pool

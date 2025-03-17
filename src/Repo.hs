@@ -42,8 +42,7 @@ listStories pool page size =
 -- Delete a story by primary key.
 deleteStory :: ConnectionPool -> StoryId -> IO ()
 deleteStory pool storyId =
-  flip runSqlPersistMPool pool $ do
-    delete storyId
+  runSqlPersistMPool (delete storyId) pool
 
 -- Update a story name in the database.
 updateStory :: ConnectionPool -> StoryId -> Story -> IO StoryDto
@@ -82,8 +81,7 @@ insertTask pool task =
 -- Delete a task by primary key.
 deleteTask :: ConnectionPool -> TaskId -> IO ()
 deleteTask pool taskId =
-  flip runSqlPersistMPool pool $ do
-    delete taskId
+  runSqlPersistMPool (delete taskId) pool
 
 -- Update a task name in the database.
 updateTask :: ConnectionPool -> TaskId -> Task -> IO TaskDto

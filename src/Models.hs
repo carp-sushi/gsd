@@ -84,3 +84,13 @@ instance ToJSON TaskDto where
 mkTaskDto :: Entity Task -> TaskDto
 mkTaskDto (Entity taskId (Task _ name status)) =
   TaskDto taskId name status
+
+-- Aliases for story request and reply types.
+-- For use in the API type.
+type StoryReq = Story
+type StoryRep = StoryDto
+
+-- Aliases for task request and reply types.
+-- For use in the API type.
+type TaskReq = Task
+type TaskRep = TaskDto
