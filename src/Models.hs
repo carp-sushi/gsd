@@ -42,29 +42,35 @@ Task json sql=tasks
   deriving Eq Read Show
 |]
 
+-- Alias story request type.
+type StoryReq = Story
+
+-- Alias task request type.
+type TaskReq = Task
+
 -- Story data transfer object.
 -- We use this so we can pair the primary key with the story name.
-data StoryDto = StoryDto
+data StoryRep = StoryRep
   { storyId_ :: StoryId
   , storyName_ :: String
   }
   deriving (Eq, Ord, Show)
 
 -- Render data transfer object as JSON.
-instance ToJSON StoryDto where
-  toJSON (StoryDto storyId name) =
+instance ToJSON StoryRep where
+  toJSON (StoryRep storyId name) =
     object
       [ "id" .= toJSON storyId
       , "name" .= toJSON name
       ]
 
 -- Create a story data transfer object from a database entity.
-mkStoryDto :: Entity Story -> StoryDto
-mkStoryDto (Entity storyId (Story name)) =
-  StoryDto storyId name
+mkStoryRep :: Entity Story -> StoryRep
+mkStoryRep (Entity storyId (Story name)) =
+  StoryRep storyId name
 
 -- Task data transfer object.
-data TaskDto = TaskDto
+data TaskRep = TaskRep
   { taskId_ :: TaskId
   , taskName_ :: String
   , taskStatus_ :: TaskStatus
@@ -72,8 +78,8 @@ data TaskDto = TaskDto
   deriving (Eq, Ord, Show)
 
 -- Render data transfer object as JSON.
-instance ToJSON TaskDto where
-  toJSON (TaskDto taskId name status) =
+instance ToJSON TaskRep where
+  toJSON (TaskRep taskId name status) =
     object
       [ "id" .= toJSON taskId
       , "name" .= toJSON name
@@ -81,16 +87,6 @@ instance ToJSON TaskDto where
       ]
 
 -- Create a task data transfer object from a database entity.
-mkTaskDto :: Entity Task -> TaskDto
-mkTaskDto (Entity taskId (Task _ name status)) =
-  TaskDto taskId name status
-
--- Aliases for story request and reply types.
--- For use in the API type.
-type StoryReq = Story
-type StoryRep = StoryDto
-
--- Aliases for task request and reply types.
--- For use in the API type.
-type TaskReq = Task
-type TaskRep = TaskDto
+mkTaskRep :: Entity Task -> TaskRep
+mkTaskRep (Entity taskId (Task _ name status)) =
+  TaskRep taskId name status
