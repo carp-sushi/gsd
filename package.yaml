@@ -19,6 +19,7 @@ dependencies:
   - configurator
   - monad-logger
   - persistent
+  - persistent-postgresql
   - persistent-sqlite
   - servant
   - servant-server

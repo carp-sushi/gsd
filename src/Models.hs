@@ -38,7 +38,7 @@ Story json sql=stories
 Task json sql=tasks
   storyId StoryId
   name String
-  status TaskStatus default=Todo
+  status TaskStatus default='Todo'
   deriving Eq Read Show
 |]
 

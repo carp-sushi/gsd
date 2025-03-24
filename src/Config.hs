@@ -8,7 +8,7 @@ import Data.Text
 
 -- Service config type
 data Config = Config
-  { dbFile :: Text
+  { pgConn :: Text
   , webPort :: Int
   , poolSize :: Int
   }
@@ -18,7 +18,7 @@ data Config = Config
 loadConfig :: FilePath -> IO Config
 loadConfig file = do
   cfg <- load [Required file]
-  dbFile' <- require cfg "dbFile"
+  pgConn' <- require cfg "pgConn"
   webPort' <- require cfg "webPort"
   poolSize' <- require cfg "poolSize"
-  return $ Config dbFile' webPort' poolSize'
+  return $ Config pgConn' webPort' poolSize'

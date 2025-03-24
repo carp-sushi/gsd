@@ -21,7 +21,7 @@ main = do
 startServer :: FilePath -> IO ()
 startServer configFile = do
   config <- loadConfig configFile
-  pool <- DB.createPool (dbFile config) (poolSize config)
+  pool <- DB.createPool (pgConn config) (poolSize config)
   DB.runMigrations pool
   let port = webPort config
   putStrLn $ "Running gsd-server on port " <> show port

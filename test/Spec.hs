@@ -15,7 +15,7 @@ import Test.Tasty.Hspec
 -- Setup test application with in-memory SQLite database.
 setupApp :: IO Application
 setupApp = do
-  pool <- DB.createPool ":memory:" 1
+  pool <- DB.createTestPool ":memory:" 1
   DB.runMigrations pool
   story <- Repo.insertStory pool (Story "First Story")
   _ <- Repo.insertStory pool (Story "Delete Me")
@@ -45,6 +45,8 @@ spec_createStory =
         postJson "/stories" "{\"name\":\"Test\"}" `shouldRespondWith` 201
       it "should fail to create a story with an empty name" $ do
         postJson "/stories" "{\"name\":\"\"}" `shouldRespondWith` 400
+      it "should fail to create a story with an empty body" $ do
+        postJson "/stories" "{}" `shouldRespondWith` 400
 
 -- List story tests
 spec_listStories :: Spec
@@ -73,6 +75,8 @@ spec_updateStory =
         putJson "/stories/1" "{\"name\":\"Update\"}" `shouldRespondWith` 200
       it "should fail to update a story with an empty name" $ do
         putJson "/stories/1" "{\"name\":\"\"}" `shouldRespondWith` 400
+      it "should fail to update a story with an empty body" $ do
+        putJson "/stories/1" "{}" `shouldRespondWith` 400
 
 -- Delete story tests
 spec_deleteStory :: Spec
@@ -92,6 +96,9 @@ spec_createTask =
       it "should create a task" $ do
         let body = "{\"storyId\":1,\"name\":\"Test\",\"status\":\"Todo\"}"
         postJson "/tasks" body `shouldRespondWith` 201
+      it "should fail to create a task with an empty name" $ do
+        let body = "{\"storyId\":1,\"name\":\"\",\"status\":\"Todo\"}"
+        postJson "/tasks" body `shouldRespondWith` 400
       it "should fail to create a task with an empty body" $ do
         postJson "/tasks" "{}" `shouldRespondWith` 400
 
@@ -123,6 +130,9 @@ spec_updateTask =
       it "should update a task" $ do
         let body = "{\"storyId\":1,\"name\":\"Update\",\"status\":\"Done\"}"
         putJson "/tasks/1" body `shouldRespondWith` 200
+      it "should fail to update a task with an empty name" $ do
+        let body = "{\"storyId\":1,\"name\":\"\",\"status\":\"Todo\"}"
+        putJson "/tasks/1" body `shouldRespondWith` 400
       it "should fail to update a task with an empty body" $ do
         putJson "/tasks/1" "{}" `shouldRespondWith` 400
 
