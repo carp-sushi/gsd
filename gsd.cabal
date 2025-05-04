@@ -45,7 +45,9 @@ library
   build-depends:
       aeson
     , base >=4.7 && <5
+    , bytestring
     , configurator
+    , http-types
     , monad-logger
     , persistent
     , persistent-postgresql
@@ -73,8 +75,10 @@ executable gsd-server
   build-depends:
       aeson
     , base >=4.7 && <5
+    , bytestring
     , configurator
     , gsd
+    , http-types
     , monad-logger
     , persistent
     , persistent-postgresql
@@ -103,6 +107,7 @@ test-suite gsd-test
   build-depends:
       aeson
     , base >=4.7 && <5
+    , bytestring
     , configurator
     , gsd
     , hspec
