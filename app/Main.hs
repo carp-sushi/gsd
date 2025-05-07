@@ -1,12 +1,11 @@
 module Main (main) where
 
 import Config (Config (..), loadConfig)
-import Ctx (Ctx (..))
-import qualified Database as DB
-import Server (app)
-
 import Data.Maybe (listToMaybe)
+import qualified Database as DB
+import Env (Env (..))
 import qualified Network.Wai.Handler.Warp as Warp
+import Server (app)
 import System.Environment (getArgs)
 
 -- GSD server entry point.
@@ -25,4 +24,4 @@ startServer configFile = do
   DB.runMigrations pool
   let port = webPort config
   putStrLn $ "Running gsd-server on port " <> show port
-  Warp.run port $ app $ Ctx pool
+  Warp.run port $ app $ Env pool

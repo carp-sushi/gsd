@@ -1,27 +1,27 @@
 module Server
   ( app
-  ) where
+  )
+where
 
 import Api
-import Ctx
+import Control.Monad.Trans.Reader (runReaderT)
+import Env
 import Errors (customFormatters)
 import Handlers
-
-import Control.Monad.Trans.Reader (runReaderT)
 import Servant
 
 -- Transform custom handler monads to servant handlers.
-transform :: Ctx -> HandlerM a -> Handler a
-transform ctx hm =
-  runReaderT hm ctx
+transform :: Env -> HandlerM a -> Handler a
+transform env hm =
+  runReaderT hm env
 
 -- Create the application.
-app :: Ctx -> Application
-app ctx =
-  serveWithContext api serverCtx server
+app :: Env -> Application
+app env =
+  serveWithContext api ctx server
   where
-    serverCtx = customFormatters :. EmptyContext
-    server = hoistServer api (transform ctx) mkServer
+    ctx = customFormatters :. EmptyContext
+    server = hoistServer api (transform env) mkServer
 
 -- Create the API server.
 mkServer :: ServerT Api HandlerM

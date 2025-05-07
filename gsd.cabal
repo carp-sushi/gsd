@@ -26,8 +26,8 @@ library
   exposed-modules:
       Api
       Config
-      Ctx
       Database
+      Env
       Errors
       Handlers
       Models

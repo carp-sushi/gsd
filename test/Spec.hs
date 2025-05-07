@@ -1,5 +1,5 @@
-import Ctx
 import qualified Database as DB
+import Env
 import Models
 import qualified Repo
 import Server (app)
@@ -21,7 +21,7 @@ setupApp = do
   _ <- Repo.insertStory pool (Story "Delete Me")
   _ <- Repo.insertTask pool $ Task (storyId_ story) "Task" Todo
   _ <- Repo.insertTask pool $ Task (storyId_ story) "Delete Me" Todo
-  return $ app (Ctx pool)
+  return $ app (Env pool)
 
 -- JSON content type headers for POST and PUT requests.
 jsonCT :: [Header]
