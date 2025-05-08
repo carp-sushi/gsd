@@ -3,12 +3,12 @@
 module Handlers
   ( deleteStoryHandler
   , getStoryHandler
-  , insertStoryHandler
+  , createStoryHandler
   , listStoriesHandler
   , updateStoryHandler
   , listTasksHandler
   , getTaskHandler
-  , insertTaskHandler
+  , createTaskHandler
   , deleteTaskHandler
   , updateTaskHandler
   )
@@ -59,15 +59,15 @@ deleteStoryHandler storyId = do
   return NoContent
 
 -- Validate then insert a story in the database.
-insertStoryHandler :: StoryReq -> HandlerM StoryRep
-insertStoryHandler story@(Story name) =
+createStoryHandler :: StoryReq -> HandlerM StoryRep
+createStoryHandler story@(Story name) =
   if name == ""
     then throwError $ Errors.badRequest "Invalid story name"
-    else insertStory' story
+    else createStoryHandler' story
 
--- Insert story helper
-insertStory' :: StoryReq -> HandlerM StoryRep
-insertStory' story = do
+-- Internal create story handler
+createStoryHandler' :: StoryReq -> HandlerM StoryRep
+createStoryHandler' story = do
   env <- ask
   liftIO $ createStory env story
 
@@ -76,11 +76,11 @@ updateStoryHandler :: StoryId -> StoryReq -> HandlerM StoryRep
 updateStoryHandler storyId story@(Story name) =
   if name == ""
     then throwError $ Errors.badRequest "Invalid story name"
-    else updateStory' storyId story
+    else updateStoryHandler' storyId story
 
--- Update story helper.
-updateStory' :: StoryId -> StoryReq -> HandlerM StoryRep
-updateStory' storyId story = do
+-- Internal update story handler.
+updateStoryHandler' :: StoryId -> StoryReq -> HandlerM StoryRep
+updateStoryHandler' storyId story = do
   env <- ask
   liftIO $ updateStory env storyId story
 
@@ -99,15 +99,15 @@ getTaskHandler taskId = do
   maybe (throwError $ Errors.notFound "Task not found") return maybeTask
 
 -- Insert a task in the database.
-insertTaskHandler :: TaskReq -> HandlerM TaskRep
-insertTaskHandler task@(Task _ name _) =
+createTaskHandler :: TaskReq -> HandlerM TaskRep
+createTaskHandler task@(Task _ name _) =
   if name == ""
     then throwError $ Errors.badRequest "Invalid task name"
-    else insertTask' task
+    else createTaskHandler' task
 
--- Insert task helper
-insertTask' :: TaskReq -> HandlerM TaskRep
-insertTask' task = do
+-- Internal create task handler
+createTaskHandler' :: TaskReq -> HandlerM TaskRep
+createTaskHandler' task = do
   env <- ask
   maybeStory <- liftIO $ getStory env (taskStoryId task)
   if isNothing maybeStory
@@ -126,11 +126,11 @@ updateTaskHandler :: TaskId -> TaskReq -> HandlerM TaskRep
 updateTaskHandler taskId task@(Task _ name _) = do
   if name == ""
     then throwError $ Errors.badRequest "Invalid task name"
-    else updateTask' taskId task
+    else updateTaskHandler' taskId task
 
--- Update task helper
-updateTask' :: TaskId -> TaskReq -> HandlerM TaskRep
-updateTask' taskId task = do
+-- Internal update task handler
+updateTaskHandler' :: TaskId -> TaskReq -> HandlerM TaskRep
+updateTaskHandler' taskId task = do
   env <- ask
   maybeTask <- liftIO $ getTask env taskId
   if isNothing maybeTask

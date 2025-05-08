@@ -20,8 +20,8 @@ app env =
 
 -- Transform custom handler monads to servant handlers.
 transform :: Env -> HandlerM a -> Handler a
-transform env hm =
-  runReaderT hm env
+transform env handlerM =
+  runReaderT handlerM env
 
 -- Create the API server.
 mkServer :: ServerT Api HandlerM
@@ -30,13 +30,13 @@ mkServer =
   where
     storyHandlers =
       listStoriesHandler
-        :<|> insertStoryHandler
+        :<|> createStoryHandler
         :<|> getStoryHandler
         :<|> deleteStoryHandler
         :<|> updateStoryHandler
     taskHandlers =
       listTasksHandler
         :<|> getTaskHandler
-        :<|> insertTaskHandler
+        :<|> createTaskHandler
         :<|> deleteTaskHandler
         :<|> updateTaskHandler
