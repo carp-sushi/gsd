@@ -25,6 +25,7 @@ source-repository head
 library
   exposed-modules:
       Api
+      App
       Config
       Database
       Env
@@ -32,7 +33,7 @@ library
       Handlers
       Models
       Repo
-      Server
+      Service
   other-modules:
       Paths_gsd
   autogen-modules:

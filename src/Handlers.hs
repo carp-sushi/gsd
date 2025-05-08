@@ -1,16 +1,16 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module Handlers
-  ( deleteStoryHandler,
-    getStoryHandler,
-    insertStoryHandler,
-    listStoriesHandler,
-    updateStoryHandler,
-    listTasksHandler,
-    getTaskHandler,
-    insertTaskHandler,
-    deleteTaskHandler,
-    updateTaskHandler,
+  ( deleteStoryHandler
+  , getStoryHandler
+  , insertStoryHandler
+  , listStoriesHandler
+  , updateStoryHandler
+  , listTasksHandler
+  , getTaskHandler
+  , insertTaskHandler
+  , deleteTaskHandler
+  , updateTaskHandler
   )
 where
 
@@ -20,23 +20,28 @@ import Data.Maybe (isNothing)
 import Env
 import qualified Errors
 import Models
-import qualified Repo
 import Servant
+import Service
+  ( StoryReader (..)
+  , StoryWriter (..)
+  , TaskReader (..)
+  , TaskWriter (..)
+  )
 
 -- Get a story from the database.
 getStoryHandler :: StoryId -> HandlerM StoryRep
 getStoryHandler storyId = do
-  Env {pool_ = pool} <- ask
-  maybeStory <- liftIO $ Repo.getStory pool storyId
+  env <- ask
+  maybeStory <- liftIO $ getStory env storyId
   maybe (throwError $ Errors.notFound "Story not found") return maybeStory
 
 -- Get a page of stories from the database.
 listStoriesHandler :: Maybe Int -> Maybe Int -> HandlerM [StoryRep]
 listStoriesHandler maybePage maybeSize = do
-  Env {pool_ = pool} <- ask
-  liftIO $ Repo.listStories pool (getPage maybePage) (getSize maybeSize)
+  env <- ask
+  liftIO $ listStories env (getPage maybePage) (getSize maybeSize)
 
--- Get page number or return a default.
+-- Get page number or return the first page.
 getPage :: Maybe Int -> Int
 getPage Nothing = 1
 getPage (Just page) = max page 1
@@ -49,8 +54,8 @@ getSize (Just size) = max 1 (min size 100)
 -- Delete a story from the database.
 deleteStoryHandler :: StoryId -> HandlerM NoContent
 deleteStoryHandler storyId = do
-  Env {pool_ = pool} <- ask
-  liftIO $ Repo.deleteStory pool storyId
+  env <- ask
+  liftIO $ deleteStory env storyId
   return NoContent
 
 -- Validate then insert a story in the database.
@@ -63,8 +68,8 @@ insertStoryHandler story@(Story name) =
 -- Insert story helper
 insertStory' :: StoryReq -> HandlerM StoryRep
 insertStory' story = do
-  Env {pool_ = pool} <- ask
-  liftIO $ Repo.insertStory pool story
+  env <- ask
+  liftIO $ createStory env story
 
 -- Update a story name in the database.
 updateStoryHandler :: StoryId -> StoryReq -> HandlerM StoryRep
@@ -76,21 +81,21 @@ updateStoryHandler storyId story@(Story name) =
 -- Update story helper.
 updateStory' :: StoryId -> StoryReq -> HandlerM StoryRep
 updateStory' storyId story = do
-  Env {pool_ = pool} <- ask
-  liftIO $ Repo.updateStory pool storyId story
+  env <- ask
+  liftIO $ updateStory env storyId story
 
 -- Get tasks for a story from the database.
 listTasksHandler :: Maybe StoryId -> HandlerM [TaskRep]
 listTasksHandler Nothing = throwError $ Errors.badRequest "Missing storyId query parameter"
 listTasksHandler (Just storyId) = do
-  Env {pool_ = pool} <- ask
-  liftIO $ Repo.listTasks pool storyId
+  env <- ask
+  liftIO $ listTasks env storyId
 
 -- Get a task from the database.
 getTaskHandler :: TaskId -> HandlerM TaskRep
 getTaskHandler taskId = do
-  Env {pool_ = pool} <- ask
-  maybeTask <- liftIO $ Repo.getTask pool taskId
+  env <- ask
+  maybeTask <- liftIO $ getTask env taskId
   maybe (throwError $ Errors.notFound "Task not found") return maybeTask
 
 -- Insert a task in the database.
@@ -103,17 +108,17 @@ insertTaskHandler task@(Task _ name _) =
 -- Insert task helper
 insertTask' :: TaskReq -> HandlerM TaskRep
 insertTask' task = do
-  Env {pool_ = pool} <- ask
-  maybeStory <- liftIO $ Repo.getStory pool (taskStoryId task)
+  env <- ask
+  maybeStory <- liftIO $ getStory env (taskStoryId task)
   if isNothing maybeStory
     then throwError $ Errors.badRequest "Invalid storyId"
-    else liftIO $ Repo.insertTask pool task
+    else liftIO $ createTask env task
 
 -- Delete a task from the database.
 deleteTaskHandler :: TaskId -> HandlerM NoContent
 deleteTaskHandler taskId = do
-  Env {pool_ = pool} <- ask
-  liftIO $ Repo.deleteTask pool taskId
+  env <- ask
+  liftIO $ deleteTask env taskId
   return NoContent
 
 -- Update a task name and status in the database.
@@ -126,8 +131,8 @@ updateTaskHandler taskId task@(Task _ name _) = do
 -- Update task helper
 updateTask' :: TaskId -> TaskReq -> HandlerM TaskRep
 updateTask' taskId task = do
-  Env {pool_ = pool} <- ask
-  maybeTask <- liftIO $ Repo.getTask pool taskId
+  env <- ask
+  maybeTask <- liftIO $ getTask env taskId
   if isNothing maybeTask
     then throwError $ Errors.notFound "Task not found"
-    else liftIO $ Repo.updateTask pool taskId task
+    else liftIO $ updateTask env taskId task

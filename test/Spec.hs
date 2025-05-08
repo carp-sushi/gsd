@@ -1,8 +1,8 @@
+import App (app)
 import qualified Database as DB
 import Env
 import Models
 import qualified Repo
-import Server (app)
 
 import Network.HTTP.Types
 import Servant hiding (Header)

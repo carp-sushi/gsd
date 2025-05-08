@@ -1,6 +1,6 @@
 module Env
-  ( Env (..),
-    HandlerM,
+  ( Env (..)
+  , HandlerM
   )
 where
 
@@ -10,7 +10,7 @@ import Servant
 
 -- Application environment.
 newtype Env = Env
-  { pool_ :: ConnectionPool
+  { connectionPool :: ConnectionPool
   }
 
 -- Custom reader transformer monad for handlers.

@@ -1,4 +1,4 @@
-module Server
+module App
   ( app
   )
 where
@@ -10,11 +10,6 @@ import Errors (customFormatters)
 import Handlers
 import Servant
 
--- Transform custom handler monads to servant handlers.
-transform :: Env -> HandlerM a -> Handler a
-transform env hm =
-  runReaderT hm env
-
 -- Create the application.
 app :: Env -> Application
 app env =
@@ -22,6 +17,11 @@ app env =
   where
     ctx = customFormatters :. EmptyContext
     server = hoistServer api (transform env) mkServer
+
+-- Transform custom handler monads to servant handlers.
+transform :: Env -> HandlerM a -> Handler a
+transform env hm =
+  runReaderT hm env
 
 -- Create the API server.
 mkServer :: ServerT Api HandlerM
