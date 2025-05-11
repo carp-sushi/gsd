@@ -1,3 +1,4 @@
+import Config
 import qualified Database as DB
 import Env
 import Models
@@ -21,7 +22,7 @@ setupApp = do
   _ <- Repo.insertStory pool (Story "Delete Me")
   _ <- Repo.insertTask pool $ Task (storyId_ story) "Task" Todo
   _ <- Repo.insertTask pool $ Task (storyId_ story) "Delete Me" Todo
-  return $ app (Env pool)
+  return $ app $ Env (Config "n/a" 0 1) pool
 
 -- JSON content type headers for POST and PUT requests.
 jsonCT :: [Header]

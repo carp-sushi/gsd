@@ -4,14 +4,16 @@ module Env
   )
 where
 
+import Config (Config)
 import Control.Monad.Trans.Reader (ReaderT)
 import Database.Persist.Sql (ConnectionPool)
 import Servant
 
--- Application environment.
-newtype Env = Env
-  { pool_ :: ConnectionPool
+-- | App environment
+data Env = Env
+  { envConfig :: Config
+  , envConnectionPool :: ConnectionPool
   }
 
--- Custom reader transformer monad for handlers.
+-- | Custom reader transformer monad for handlers.
 type HandlerM = ReaderT Env Handler

@@ -24,4 +24,4 @@ startServer configFile = do
   DB.runMigrations pool
   let port = webPort config
   putStrLn $ "Running gsd-server on port " <> show port
-  Warp.run port $ app $ Env pool
+  Warp.run port $ app $ Env config pool

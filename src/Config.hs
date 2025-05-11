@@ -6,7 +6,7 @@ module Config
 import Data.Configurator
 import Data.Text
 
--- Service config type
+-- | App config
 data Config = Config
   { pgConn :: Text
   , webPort :: Int
@@ -14,7 +14,7 @@ data Config = Config
   }
   deriving (Eq, Ord, Show)
 
--- Read service config from file path.
+-- | Read app config from file.
 loadConfig :: FilePath -> IO Config
 loadConfig file = do
   cfg <- load [Required file]
