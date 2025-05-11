@@ -1,6 +1,6 @@
 module Env
-  ( Env (..),
-    HandlerM,
+  ( Env (..)
+  , HandlerM
   )
 where
 

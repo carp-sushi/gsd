@@ -1,16 +1,16 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module Handlers
-  ( deleteStoryHandler,
-    getStoryHandler,
-    insertStoryHandler,
-    listStoriesHandler,
-    updateStoryHandler,
-    listTasksHandler,
-    getTaskHandler,
-    insertTaskHandler,
-    deleteTaskHandler,
-    updateTaskHandler,
+  ( deleteStoryHandler
+  , getStoryHandler
+  , insertStoryHandler
+  , listStoriesHandler
+  , updateStoryHandler
+  , listTasksHandler
+  , getTaskHandler
+  , insertTaskHandler
+  , deleteTaskHandler
+  , updateTaskHandler
   )
 where
 
