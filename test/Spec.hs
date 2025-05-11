@@ -16,13 +16,14 @@ import Test.Tasty.Hspec
 -- Setup test application with in-memory SQLite database.
 setupApp :: IO Application
 setupApp = do
-  pool <- DB.createTestPool ":memory:" 1
+  let config = Config ":memory:" 4001 1
+  pool <- DB.createTestPool (dbUrl config) (poolSize config)
   DB.runMigrations pool
   story <- Repo.insertStory pool (Story "First Story")
   _ <- Repo.insertStory pool (Story "Delete Me")
   _ <- Repo.insertTask pool $ Task (storyId_ story) "Task" Todo
   _ <- Repo.insertTask pool $ Task (storyId_ story) "Delete Me" Todo
-  return $ app $ Env (Config "n/a" 0 1) pool
+  return $ app $ Env config pool
 
 -- JSON content type headers for POST and PUT requests.
 jsonCT :: [Header]
