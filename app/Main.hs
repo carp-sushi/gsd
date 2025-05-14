@@ -4,8 +4,9 @@ import Config (Config (..), loadConfig)
 import Data.Maybe (listToMaybe)
 import qualified Database as DB
 import Env (Env (..))
+
+import App (app)
 import qualified Network.Wai.Handler.Warp as Warp
-import Server (app)
 import System.Environment (getArgs)
 
 -- GSD server entry point.

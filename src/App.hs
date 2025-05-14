@@ -1,27 +1,26 @@
-module Server
+module App
   ( app
   )
 where
 
-import Api
+import Api (Api, api)
 import Control.Monad.Trans.Reader (runReaderT)
-import Env
-import Errors (customFormatters)
+import Env (Env, HandlerM)
+import Errors (customErrorFormatters)
 import Handlers
 import Servant
-
--- Transform custom handler monads to servant handlers.
-transform :: Env -> HandlerM a -> Handler a
-transform env hm =
-  runReaderT hm env
 
 -- Create the application.
 app :: Env -> Application
 app env =
-  serveWithContext api ctx server
-  where
-    ctx = customFormatters :. EmptyContext
-    server = hoistServer api (transform env) mkServer
+  let ctx = customErrorFormatters :. EmptyContext
+      server = hoistServer api (transform env) mkServer
+   in serveWithContext api ctx server
+
+-- Transform custom handler monads to servant handlers.
+transform :: Env -> HandlerM a -> Handler a
+transform env handlerM =
+  runReaderT handlerM env
 
 -- Create the API server.
 mkServer :: ServerT Api HandlerM

@@ -25,6 +25,7 @@ source-repository head
 library
   exposed-modules:
       Api
+      App
       Config
       Database
       Env
@@ -32,7 +33,6 @@ library
       Handlers
       Models
       Repo
-      Server
   other-modules:
       Paths_gsd
   autogen-modules:
@@ -51,7 +51,6 @@ library
     , monad-logger
     , persistent
     , persistent-postgresql
-    , persistent-sqlite
     , servant
     , servant-server
     , string-conversions
@@ -82,7 +81,6 @@ executable gsd-server
     , monad-logger
     , persistent
     , persistent-postgresql
-    , persistent-sqlite
     , servant
     , servant-server
     , string-conversions

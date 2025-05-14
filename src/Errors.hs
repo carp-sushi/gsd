@@ -1,5 +1,5 @@
 module Errors
-  ( customFormatters
+  ( customErrorFormatters
   , badRequest
   , notFound
   )
@@ -11,9 +11,9 @@ import Data.Text (Text)
 import Network.HTTP.Types.Header
 import Servant hiding (Header)
 
--- Custom error formatter.
-customFormatters :: ErrorFormatters
-customFormatters =
+-- Format body parse errors as JSON.
+customErrorFormatters :: ErrorFormatters
+customErrorFormatters =
   defaultErrorFormatters
     { bodyParserErrorFormatter = bodyParserJsonFormatter
     }

@@ -22,7 +22,6 @@ dependencies:
   - monad-logger
   - persistent
   - persistent-postgresql
-  - persistent-sqlite
   - servant
   - servant-server
   - string-conversions
@@ -63,5 +62,6 @@ tests:
       - hspec
       - hspec-wai
       - http-types
+      - persistent-sqlite
       - tasty
       - tasty-hspec

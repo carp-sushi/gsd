@@ -1,10 +1,15 @@
+import App (app)
 import Config
 import qualified Database as DB
 import Env
 import Models
 import qualified Repo
-import Server (app)
 
+import Control.Monad.Logger (runNoLoggingT)
+import Data.String.Conversions (cs)
+import Data.Text (Text)
+import Database.Persist.Sql (ConnectionPool)
+import Database.Persist.Sqlite (createSqlitePool)
 import Network.HTTP.Types
 import Servant hiding (Header)
 
@@ -13,16 +18,23 @@ import Test.Hspec.Wai
 import Test.Tasty
 import Test.Tasty.Hspec
 
+-- Create a sqlite database connection pool.
+createTestPool :: Text -> Int -> IO ConnectionPool
+createTestPool file size =
+  runNoLoggingT $ do
+    createSqlitePool (cs file) size
+
 -- Setup test application with in-memory SQLite database.
 setupApp :: IO Application
 setupApp = do
   let config = Config ":memory:" 4001 1
-  pool <- DB.createTestPool (dbUrl config) (poolSize config)
+  pool <- createTestPool (dbUrl config) (poolSize config)
   DB.runMigrations pool
-  story <- Repo.insertStory pool (Story "First Story")
-  _ <- Repo.insertStory pool (Story "Delete Me")
-  _ <- Repo.insertTask pool $ Task (storyId_ story) "Task" Todo
-  _ <- Repo.insertTask pool $ Task (storyId_ story) "Delete Me" Todo
+  story <- Repo.insertStory pool $ Story "First Story"
+  let sid = storyId_ story
+  _ <- Repo.insertStory pool $ Story "Delete Me"
+  _ <- Repo.insertTask pool $ Task sid "Task" Todo
+  _ <- Repo.insertTask pool $ Task sid "Delete Me" Todo
   return $ app $ Env config pool
 
 -- JSON content type headers for POST and PUT requests.
