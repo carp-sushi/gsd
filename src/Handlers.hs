@@ -34,17 +34,18 @@ getStoryHandler storyId = do
 listStoriesHandler :: Maybe Int -> Maybe Int -> HandlerM [StoryRep]
 listStoriesHandler maybePage maybeSize = do
   (Env _ pool) <- ask
-  liftIO $ Repo.listStories pool (getPage maybePage) (getSize maybeSize)
+  let (page, size) = getPageParams maybePage maybeSize
+  liftIO $ Repo.listStories pool page size
 
--- Get page number or return a default.
-getPage :: Maybe Int -> Int
-getPage Nothing = 1
-getPage (Just page) = max page 1
-
--- Get page size or return a default.
-getSize :: Maybe Int -> Int
-getSize Nothing = 10
-getSize (Just size) = max 1 (min size 100)
+-- Helper to get page number and page size.
+getPageParams :: Maybe Int -> Maybe Int -> (Int, Int)
+getPageParams maybePage maybeSize =
+  (getPage maybePage, getSize maybeSize)
+  where
+    getPage Nothing = 1
+    getPage (Just page) = max page 1
+    getSize Nothing = 10
+    getSize (Just size) = max 1 (min size 100)
 
 -- Delete a story from the database.
 deleteStoryHandler :: StoryId -> HandlerM NoContent
