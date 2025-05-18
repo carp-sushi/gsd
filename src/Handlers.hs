@@ -14,14 +14,15 @@ module Handlers
   )
 where
 
-import Control.Monad.IO.Class (liftIO)
-import Control.Monad.Trans.Reader (ask)
-import Data.Maybe (isNothing)
 import Env
 import qualified Errors
 import Models
 import qualified Repo
 import Servant
+
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Trans.Reader (ask)
+import Data.Maybe (isNothing)
 
 -- Get a story from the database.
 getStoryHandler :: StoryId -> HandlerM StoryRep
@@ -35,7 +36,8 @@ listStoriesHandler :: Maybe Int -> Maybe Int -> HandlerM [StoryRep]
 listStoriesHandler maybePage maybeSize = do
   (Env _ pool) <- ask
   let (page, size) = getPageParams maybePage maybeSize
-  liftIO $ Repo.listStories pool page size
+  stories <- liftIO $ Repo.listStories pool page size
+  return $ mkStoryRep <$> stories
 
 -- Helper to get page number and page size.
 getPageParams :: Maybe Int -> Maybe Int -> (Int, Int)
@@ -85,7 +87,8 @@ listTasksHandler :: Maybe StoryId -> HandlerM [TaskRep]
 listTasksHandler Nothing = throwError $ Errors.badRequest "Missing storyId query parameter"
 listTasksHandler (Just storyId) = do
   (Env _ pool) <- ask
-  liftIO $ Repo.listTasks pool storyId
+  tasks <- liftIO $ Repo.listTasks pool storyId
+  return $ mkTaskRep <$> tasks
 
 -- Get a task from the database.
 getTaskHandler :: TaskId -> HandlerM TaskRep

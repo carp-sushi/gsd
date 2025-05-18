@@ -5,6 +5,7 @@ module Env
 where
 
 import Config (Config)
+
 import Control.Monad.Trans.Reader (ReaderT)
 import Database.Persist.Sql (ConnectionPool)
 import Servant
