@@ -1,9 +1,10 @@
 import App (app)
 import Config
-import qualified Database as DB
+import qualified Database.Migrator as Migrator
+import Database.Models
 import Env
-import Models
-import qualified Repo
+import qualified Repo.StoryRepo as StoryRepo
+import qualified Repo.TaskRepo as TaskRepo
 
 import Control.Monad.Logger (runNoLoggingT)
 import Data.String.Conversions (cs)
@@ -29,12 +30,11 @@ setupApp :: IO Application
 setupApp = do
   let config = Config ":memory:" 4001 1
   pool <- createTestPool (dbUrl config) (poolSize config)
-  DB.runMigrations pool
-  story <- Repo.insertStory pool $ Story "First Story"
-  let sid = storyId_ story
-  _ <- Repo.insertStory pool $ Story "Delete Me"
-  _ <- Repo.insertTask pool $ Task sid "Task" Todo
-  _ <- Repo.insertTask pool $ Task sid "Delete Me" Todo
+  Migrator.runMigrations pool
+  sid <- StoryRepo.insertStory pool $ Story "First Story"
+  _ <- StoryRepo.insertStory pool $ Story "Delete Me"
+  _ <- TaskRepo.insertTask pool $ Task sid "Task" Todo
+  _ <- TaskRepo.insertTask pool $ Task sid "Delete Me" Todo
   return $ app $ Env config pool
 
 -- JSON content type headers for POST and PUT requests.

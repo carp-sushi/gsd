@@ -7,7 +7,8 @@ import Api (Api, api)
 import Control.Monad.Trans.Reader (runReaderT)
 import Env (Env, HandlerM)
 import Errors (customErrorFormatters)
-import Handlers
+import Handler.StoryHandler
+import Handler.TaskHandler
 import Servant
 
 -- Create the application.

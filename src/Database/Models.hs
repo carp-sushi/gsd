@@ -14,7 +14,7 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module Models where
+module Database.Models where
 
 import Data.Aeson
 import Database.Persist.Sql
@@ -33,12 +33,12 @@ share
   [mkPersist sqlSettings, mkMigrate "migrateAll"]
   [persistLowerCase|
 Story json sql=stories
-  name String
+  name String sqltype="TEXT"
   deriving Eq Read Show
 Task json sql=tasks
   storyId StoryId
-  name String
-  status TaskStatus default='Todo'
+  name String sqltype="TEXT"
+  status TaskStatus default='Todo' sqltype="TEXT"
   deriving Eq Read Show
 |]
 

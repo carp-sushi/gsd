@@ -2,7 +2,8 @@ module Main (main) where
 
 import Config (Config (..), loadConfig)
 import Data.Maybe (listToMaybe)
-import qualified Database as DB
+import qualified Database.Migrator as Migrator
+import qualified Database.Pool as Pool
 import Env (Env (..))
 
 import App (app)
@@ -21,8 +22,8 @@ main = do
 startServer :: FilePath -> IO ()
 startServer configFile = do
   config <- loadConfig configFile
-  pool <- DB.createPool (dbUrl config) (poolSize config)
-  DB.runMigrations pool
+  pool <- Pool.createPool (dbUrl config) (poolSize config)
+  Migrator.runMigrations pool
   let port = webPort config
   putStrLn $ "Running gsd-server on port " <> show port
   Warp.run port $ app $ Env config pool

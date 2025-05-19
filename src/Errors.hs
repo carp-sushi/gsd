@@ -2,8 +2,7 @@ module Errors
   ( customErrorFormatters
   , badRequest
   , notFound
-  )
-where
+  ) where
 
 import Data.Aeson
 import qualified Data.ByteString.Lazy as BS

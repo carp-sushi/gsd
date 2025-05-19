@@ -3,7 +3,7 @@
 all: format build
 
 format:
-	@fourmolu -q -i src/*.hs app/*.hs test/*.hs
+	@fourmolu -q -i src/*.hs src/**/*.hs app/*.hs test/*.hs
 
 build:
 	@stack build

@@ -7,7 +7,7 @@ module Api
   , api
   ) where
 
-import Models
+import Database.Models
 
 import Data.Proxy
 import Servant.API

@@ -27,12 +27,16 @@ library
       Api
       App
       Config
-      Database
+      Database.Migrator
+      Database.Models
+      Database.Pool
       Env
       Errors
-      Handlers
-      Models
-      Repo
+      Handler.Params
+      Handler.StoryHandler
+      Handler.TaskHandler
+      Repo.StoryRepo
+      Repo.TaskRepo
   other-modules:
       Paths_gsd
   autogen-modules:
