@@ -8,27 +8,26 @@ module Repo.StoryRepo
   , updateStory
   ) where
 
-import Data.String.Conversions (cs)
 import Database.Esqueleto.Experimental
 import Database.Models
 import qualified Database.Persist.Sql as S
 
+import Data.String.Conversions (cs)
+
 -- Get a story by primary key.
 getStory :: ConnectionPool -> StoryId -> IO (Maybe Story)
 getStory pool storyId =
-  flip S.runSqlPersistMPool pool $ do
-    S.get storyId
+  runSqlPersistMPool (S.get storyId) pool
 
 -- Insert a new story in the database.
-insertStory :: ConnectionPool -> StoryReq -> IO StoryId
+insertStory :: ConnectionPool -> Story -> IO StoryId
 insertStory pool story =
-  flip S.runSqlPersistMPool pool $ do
-    S.insert story
+  runSqlPersistMPool (S.insert story) pool
 
 -- List a page of stories
 listStories :: ConnectionPool -> Int -> Int -> IO [Entity Story]
 listStories pool page size =
-  flip S.runSqlPersistMPool pool $
+  flip runSqlPersistMPool pool $
     select $ do
       s <- from $ table @Story
       limit $ fromIntegral size
@@ -38,10 +37,10 @@ listStories pool page size =
 -- Delete a story by primary key.
 deleteStory :: ConnectionPool -> StoryId -> IO ()
 deleteStory pool storyId =
-  S.runSqlPersistMPool (S.delete storyId) pool
+  runSqlPersistMPool (S.delete storyId) pool
 
 -- Update a story name in the database.
-updateStory :: ConnectionPool -> StoryId -> StoryReq -> IO ()
+updateStory :: ConnectionPool -> StoryId -> Story -> IO ()
 updateStory pool storyId (Story name) =
-  flip S.runSqlPersistMPool pool $ do
+  flip runSqlPersistMPool pool $ do
     S.update storyId [StoryName S.=. cs name]
